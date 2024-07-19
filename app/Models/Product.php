@@ -17,4 +17,8 @@ class Product extends Model
         'limited',
         'active_for_sale',
     ];
+
+    public function manager(){
+        return $this->belongsTo(Manager::class);
+    }
 }

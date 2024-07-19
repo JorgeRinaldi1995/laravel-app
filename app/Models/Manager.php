@@ -10,5 +10,9 @@ class Manager extends User
 {
     use HasFactory, Notifiable;
 
-    // Define any specific relationships or methods for Manager
+    public function productsOwnership()
+    {
+        return $this->hasMany(Product::class);
+    }
+
 }
