@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Customer;
+use App\Models\Address;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +32,12 @@ class RegisteredCustomerController extends Controller
                 'surname' => ['required', 'string', 'max:255'],
                 'gender' => ['required', 'string', 'max:255'],
                 'birthdate' => ['required', 'string', 'max:255'],
+                'postal_code' => ['required', 'string', 'max:255'],
+                'address_1' => ['required', 'string', 'max:255'],
+                'address_2' => ['nullable', 'string', 'max:255'],
+                'state' => ['required', 'string', 'max:255'],
+                'city' => ['required', 'string', 'max:255'],
+                'country' => ['required', 'string', 'max:255'],
             ]);
     
             if ($validator->fails()) {
@@ -44,11 +51,21 @@ class RegisteredCustomerController extends Controller
                 'role' => 'customer',
             ]);
     
-            Customer::create([
+            $customer = Customer::create([
                 'user_id' => $user->id,
                 'surname' => $request->surname,
                 'gender' => $request->gender,
                 'birthdate' => $request->birthdate,
+            ]);
+
+            Address::create([
+                'customer_id' => $customer->id,
+                'postal_code' => $request->postal_code,
+                'address_1' => $request->address_1,
+                'address_2' => $request->address_2,
+                'state' => $request->state,
+                'city' => $request->city,
+                'country' => $request->country,
             ]);
     
             event(new Registered($user));
@@ -58,7 +75,7 @@ class RegisteredCustomerController extends Controller
             return response()->json(['message' => 'Customer registered successfully', 'user' => $user], 201);
         } catch (\Exception $e) {
             Log::error('Registration Error: '.$e->getMessage());
-            return response()->json(['error' => 'An error occurred during registration. Please try again.'], 500);
+            return response()->json(['error' => $e->getMessage()]);
         }
         
     }

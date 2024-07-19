@@ -18,4 +18,9 @@ class Customer extends User
     {
         return $this->belongsTo(User::class);
     }
+
+    public function address()
+    {
+        return $this->hasMany(Address::class);
+    }
 }
