@@ -16,6 +16,7 @@ class Product extends Model
         'tax_percentage',
         'limited',
         'active_for_sale',
+        'manager_id',
     ];
 
     public function manager(){
