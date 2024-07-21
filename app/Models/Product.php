@@ -15,6 +15,7 @@ class Product extends Model
         'basic_unit',
         'tax_percentage',
         'limited',
+        'stock',
         'active_for_sale',
         'manager_id',
     ];

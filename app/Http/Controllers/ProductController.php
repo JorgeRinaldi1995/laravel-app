@@ -41,6 +41,7 @@ class ProductController extends Controller
                 'basic_unit' => 'nullable|string',
                 'tax_percentage' => 'nullable|numeric',
                 'limited' => 'required|boolean',
+                'stock' => 'nullable|numeric',
             ]);
 
             if ($validator->fails()) {
@@ -48,9 +49,6 @@ class ProductController extends Controller
             }
 
             $user = Auth::user();
-/*             if ($user->role !== 'manager') {
-                return response()->json(['error' => 'Unauthorized'], 403);
-            } */
 
             $product = Product::create([
                 'name' => $request->name,
@@ -58,6 +56,7 @@ class ProductController extends Controller
                 'basic_unit' => $request->basic_unit,
                 'tax_percentage' => $request->tax_percentage,
                 'limited' => $request->limited,
+                'stock' => $request->stock,
                 'active_for_sale' => false,
                 'manager_id' => $user->id,
             ]);
@@ -101,6 +100,7 @@ class ProductController extends Controller
                 'basic_unit' => 'sometimes|nullable|string',
                 'tax_percentage' => 'sometimes|nullable|numeric',
                 'limited' => 'sometimes|required|boolean',
+                'stock' => 'sometimes|nullable|numeric',
                 'active_for_sale' => 'sometimes|required|boolean',
             ]);
 
@@ -122,6 +122,7 @@ class ProductController extends Controller
                 $product->basic_unit = $request->input('basic_unit', $product->basic_unit);
                 $product->tax_percentage = $request->input('tax_percentage', $product->tax_percentage);
                 $product->limited = $request->input('limited', $product->limited);
+                $product->stock = $request->input('stock', $product->stock);
 
                 if ($request->has('active_for_sale')) {
                     return response()->json(['error' => 'Unauthorized to update active_for_sale'], 403);
