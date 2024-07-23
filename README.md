@@ -2,7 +2,7 @@
 
  > This is a working in progress project, i will update this with more functionalities
 
-This project was inspired by a selection process in which I participated. The goal of this project is to show my Laravel, PHP, Cloud and Backend knowledge.
+This project was inspired by a selection process in which I participated. The goal of this project is to show my Laravel, PHP, Cloud and FullStack knowledge.
 
 ## Project details
 
@@ -40,34 +40,50 @@ Develop a web application that demonstrates my ability to create easy and well-s
 
 Clone this repo to your machine:
 
-``` git clone https://github.com/JorgeRinaldi1995/laravel-app.git ```
+``` 
+git clone https://github.com/JorgeRinaldi1995/laravel-app.git 
+```
 
 Enter in laravel-app folder:
 
-``` cd laravel-app ```
+``` 
+cd laravel-app 
+```
 
 Create the .env file:
 
-``` cp .env.dev .env ```
+``` 
+cp .env.dev .env 
+```
 
 Get the project containers up:
 
-``` docker-compose up -d ```
+``` 
+docker-compose up -d 
+```
 
 Access the container:
 
-``` docker-compose exec app bash ```
+``` 
+docker-compose exec app bash 
+```
 
 Install project dependencies:
 
-``` composer install ```
+``` 
+composer install 
+```
 
 Generate the Laravel project key:
 
-``` php artisan key:generate ```
+``` 
+php artisan key:generate 
+```
 
 Run the database migrations:
 
-``` php artisan migrate ```
+``` 
+php artisan migrate 
+```
 
 Access the project on localhost:8000:
