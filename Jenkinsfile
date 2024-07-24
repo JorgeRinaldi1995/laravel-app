@@ -1,6 +1,14 @@
 pipeline {
     agent any
     stages {
+        stage('Setup Known Hosts') {
+            steps {
+                script {
+                    sh 'mkdir -p ~/.ssh'
+                    sh 'ssh-keyscan github.com >> ~/.ssh/known_hosts'
+                }
+            }
+        }
         stage("Verify tooling") {
             steps {
                 sh '''
