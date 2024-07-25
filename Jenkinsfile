@@ -46,7 +46,7 @@ pipeline {
         }
         stage("Run Composer Install") {
             steps {
-                sh 'docker-compose exec -T app composer install'
+                sh 'docker-compose exec -T --user root app composer install'
             }
         }
         stage("Populate .env file") {
