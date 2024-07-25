@@ -58,7 +58,7 @@ pipeline {
         }              
         stage("Run Tests") {
             steps {
-                sh 'docker-compose exec -T app artisan test'
+                sh 'docker-compose exec -T --user root app artisan test'
             }
         }
     }
