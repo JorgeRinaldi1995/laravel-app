@@ -46,8 +46,7 @@ pipeline {
         }
         stage("Run Composer Install") {
             steps {
-                sh 'docker-compose exec app'
-                sh 'composer install'
+                sh 'docker-compose exec -T app composer install'
             }
         }
         stage("Populate .env file") {
@@ -59,7 +58,7 @@ pipeline {
         }              
         stage("Run Tests") {
             steps {
-                sh 'docker compose run --rm artisan test'
+                sh 'docker-compose exec -T app artisan test'
             }
         }
     }
