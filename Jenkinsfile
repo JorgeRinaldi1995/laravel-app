@@ -51,7 +51,10 @@ pipeline {
         }
         stage("Populate .env file") {
             steps {
+                echo "Current workspace: ${WORKSPACE}"
                 dir("/var/lib/jenkins/workspace/envs/laravel-app") {
+                    echo "Current directory: ${pwd()}"
+                    sh 'ls -l' // List files in the directory to confirm the .env file presence
                     fileOperations([fileCopyOperation(excludes: '', flattenFiles: true, includes: '.env', targetLocation: "${WORKSPACE}")])
                 }
             }
