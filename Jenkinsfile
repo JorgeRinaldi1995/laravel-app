@@ -68,11 +68,14 @@ pipeline {
     post {
         success {
             echo "go to Laravel App folder"
-            sh 'cd "/var/lib/jenkins/workspace/LaravelApp"'
-            echo "remove artifact.zip"
-            sh 'rm -rf artifact.zip'
-            echo "im not sure..."
-            sh 'zip -r artifact.zip . -x "*node_modules**"'
+            dir("/var/lib/jenkins/workspace/LaravelApp") {
+                echo "List files with permissions"
+                sh 'ls -l' // List all files with permissions
+                echo "remove artifact.zip if exists"
+                sh 'rm -f artifact.zip' // Remove existing artifact.zip if present
+                echo "Create artifact.zip excluding node_modules and other unreadable files"
+                sh 'zip -r artifact.zip . -x "*node_modules**"' // Add more -x patterns if needed
+            }
             withCredentials([sshUserPrivateKey(credentialsId: "aws-ec2", keyFileVariable: 'keyfile')]) {
                 sh 'scp -v -o StrictHostKeyChecking=no -i ${keyfile} /var/lib/jenkins/workspace/LaravelApp/artifact.zip ec2-user@54.146.74.33:/home/ec2-user/artifact'
             }
