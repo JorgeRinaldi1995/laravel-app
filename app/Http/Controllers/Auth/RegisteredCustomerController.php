@@ -48,7 +48,7 @@ class RegisteredCustomerController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'role' => 'customer',
+                'role' => 2,
             ]);
     
             $customer = Customer::create([
@@ -70,7 +70,6 @@ class RegisteredCustomerController extends Controller
     
             event(new Registered($user));
     
-            Auth::login($user);
     
             return response()->json(['message' => 'Customer registered successfully', 'user' => $user], 201);
         } catch (\Exception $e) {

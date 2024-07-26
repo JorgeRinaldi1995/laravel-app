@@ -17,9 +17,9 @@ class ProductController extends Controller
     {
         $user = Auth::user();
         
-        if($user->role === 'admin'){
+        if($user->role === 0){
             $products = Product::all();
-        } else if($user->role === 'manager'){
+        } else if($user->role === 1){
             $products = Product::where('manager_id', $user->id)->get();
         } else {
             return response()->json(['error' => 'Unauthorized'], 403);
@@ -90,7 +90,7 @@ class ProductController extends Controller
                 return response()->json(['error'=> 'Product not found or unauthorized'],404);
             }
 
-            if ($user->role === 'manager' && $product->manager_id !== $user->id) {
+            if ($user->role === 1 && $product->manager_id !== $user->id) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
@@ -108,7 +108,7 @@ class ProductController extends Controller
                 return response()->json($validator->errors(), 422);
             }
 
-            if ($user->role === 'admin') {
+            if ($user->role === 0) {
                 // Admins can only update the active_for_sale attribute
                 if ($request->has('active_for_sale')) {
                     $product->active_for_sale = $request->input('active_for_sale');
@@ -132,7 +132,7 @@ class ProductController extends Controller
             $product->save();
 
             $responseData = $product->toArray();
-            if ($user->role !== 'admin') {
+            if ($user->role !== 0) {
                 unset($responseData['active_for_sale']);
             }
 
