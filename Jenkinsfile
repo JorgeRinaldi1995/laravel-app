@@ -73,8 +73,6 @@ pipeline {
                 sh 'ls -l' // List all files with permissions
                 echo "remove artifact.zip if exists"
                 sh 'rm -f artifact.zip' // Remove existing artifact.zip if present
-                echo "Create artifact.zip excluding node_modules and other unreadable files"
-                sh 'zip -r artifact.zip'
             }
             withCredentials([sshUserPrivateKey(credentialsId: "aws-ec2", keyFileVariable: 'keyfile')]) {
                 sh 'scp -v -o StrictHostKeyChecking=no -i ${keyfile} /var/lib/jenkins/workspace/LaravelApp/artifact.zip ec2-user@54.146.74.33:/home/ec2-user/artifact'
