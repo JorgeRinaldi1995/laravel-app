@@ -55,13 +55,13 @@ pipeline {
                 dir("/var/lib/jenkins/workspace/envs/laravel-app") {
                     echo "Current directory: ${pwd()}"
                     sh 'ls -l' // List files in the directory to confirm the .env file presence
-                    fileOperations([fileCopyOperation(excludes: '', flattenFiles: true, includes: '.env', targetLocation: "${WORKSPACE}")])
+                    fileOperations([fileCopyOperation(excludes: '', flattenFiles: true, includes: '.env', targetLocation: "${WORKSPACE}")]) // Remember to install the File Operations Plugin
                 }
             }
         }              
         stage("Run Tests") {
             steps {
-                sh 'docker-compose exec -T --user root app artisan test'
+                sh 'docker-compose exec -T --user root app php artisan test'
             }
         }
     }
