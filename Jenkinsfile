@@ -71,8 +71,6 @@ pipeline {
             dir("/var/lib/jenkins/workspace/LaravelApp") {
                 echo "List files with permissions"
                 sh 'ls -l' // List all files with permissions
-                echo "Check for unreadable files"
-                sh 'sudo find . -type f ! -readable -exec echo "Unreadable: {}" \;' // List unreadable files
                 echo "remove artifact.zip if exists"
                 sh 'rm -f artifact.zip' // Remove existing artifact.zip if present
                 echo "Create artifact.zip excluding node_modules and other unreadable files"
