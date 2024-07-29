@@ -49,18 +49,19 @@ class ProductController extends Controller
             }
 
             $user = Auth::user();
+            if($user->role === 0 || $user->role === 1){
+                $product = Product::create([
+                    'name' => $request->name,
+                    'price_per_unit' => $request->price_per_unit,
+                    'basic_unit' => $request->basic_unit,
+                    'tax_percentage' => $request->tax_percentage,
+                    'limited' => $request->limited,
+                    'stock' => $request->stock,
+                    'active_for_sale' => false,
+                    'manager_id' => $user->id,
+                ]);
+            }
 
-            $product = Product::create([
-                'name' => $request->name,
-                'price_per_unit' => $request->price_per_unit,
-                'basic_unit' => $request->basic_unit,
-                'tax_percentage' => $request->tax_percentage,
-                'limited' => $request->limited,
-                'stock' => $request->stock,
-                'active_for_sale' => false,
-                'manager_id' => $user->id,
-            ]);
-    
             return response()->json(['message' => 'Product registered successfully', 'product' => $product], 201);
         } catch (\Exception $e) {
             Log::error('Registration Error: '.$e->getMessage());
@@ -115,7 +116,7 @@ class ProductController extends Controller
                 } else {
                     return response()->json(['error' => 'Only active_for_sale attribute can be updated by admin'], 422);
                 }
-            } else {
+            } elseif($user->role === 1){
                 // Managers can update other product attributes but not active_for_sale
                 $product->name = $request->input('name', $product->name);
                 $product->price_per_unit = $request->input('price_per_unit', $product->price_per_unit);
@@ -127,6 +128,8 @@ class ProductController extends Controller
                 if ($request->has('active_for_sale')) {
                     return response()->json(['error' => 'Unauthorized to update active_for_sale'], 403);
                 }
+            }else{
+                return response()->json(['error' => 'Unauthorized'], 403);
             }
 
             $product->save();

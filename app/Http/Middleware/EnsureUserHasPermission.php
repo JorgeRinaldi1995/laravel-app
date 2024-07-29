@@ -17,7 +17,7 @@ class EnsureUserHasPermission
     public function handle(Request $request, Closure $next): Response
     {
         $userRole = Auth::user()->role;
-        if (Auth::check() && $userRole === 'manager' || $userRole === 'admin') {
+        if (Auth::check() && $userRole === 0 || $userRole === 1) {
             return $next($request);
         }
         return response()->json(['message' => 'Unauthorized.'], 403);
