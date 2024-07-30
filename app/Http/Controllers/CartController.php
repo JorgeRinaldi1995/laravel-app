@@ -11,17 +11,34 @@ class CartController extends Controller
 {
     public function addToCart(Request $request)
     {
-        $user = $request->user();
+        try {
 
-        $cart = Cart::firstOrCreate(['user_id' => $user->id]);
-        $product = Product::findOrFail($request->product_id);
+            $user = $request->user();
 
-        $cartItem = $cart->items()->updateOrCreate(
-            ['product_id'=> $product->id],
-            ['quantity' => DB::raw('quantity + ' . $request->quantity)],
-        );
+            $cart = Cart::firstOrCreate(['user_id' => $user->id]);
+            $product = Product::findOrFail($request->product_id);
 
-        return response()->json($cartItem, 201);
+            if ($product->active_for_sale) {
+                $cartItem = $cart->items()->where('product_id', $product->id)->first();
+
+                if ($cartItem) {
+                    $cartItem->quantity += $request->quantity;
+                    $cartItem->save();
+                } else {
+                    $cartItem = $cart->items()->create([
+                        'product_id' => $product->id,
+                        'quantity' => $request->quantity,
+                    ]);
+                }
+
+                return response()->json($cartItem, 201);
+            } else {
+                return response()->json(['error' => 'Product is not available for sale'], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error('Update Error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()]);
+        }
     }
 
     public function viewCart(Request $request)

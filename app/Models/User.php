@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role'
     ];
 
     // Role values: 0 for admin, 1 for manager, 2 for customer

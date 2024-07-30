@@ -20,6 +20,12 @@ class Product extends Model
         'manager_id',
     ];
 
+    protected $casts = [
+        'limited' => 'boolean',
+        'active_for_sale' => 'boolean',
+    ];
+
+
     public function manager(){
         return $this->belongsTo(Manager::class);
     }
