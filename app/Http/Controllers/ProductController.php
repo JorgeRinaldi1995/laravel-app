@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Http\Requests\ProductResources\StoreProductRequest;
+use App\Http\Resources\ProductResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -15,54 +17,43 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
         
-        if($user->role === 0){
-            $products = Product::all();
-        } else if($user->role === 1){
-            $products = Product::where('manager_id', $user->id)->get();
-        } else {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            if($user->role === 0){
+                $products = Product::all();
+            } else if($user->role === 1){
+                $products = Product::where('manager_id', $user->id)->get();
+            } else {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+    
+            return ProductResource::collection($products);
+        } catch (\Exception $e) {
+            Log::error('Registration Error: '.$e->getMessage());
+            return response()->json(['error' => $e->getMessage()]);
         }
 
-        return response()->json($products, 200);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
         try {
-            
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|unique:products',
-                'price_per_unit' => 'required|numeric',
-                'basic_unit' => 'nullable|string',
-                'tax_percentage' => 'nullable|numeric',
-                'limited' => 'required|boolean',
-                'stock' => 'nullable|numeric',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json($validator->errors(), 422);
-            }
-
             $user = Auth::user();
             if($user->role === 0 || $user->role === 1){
-                $product = Product::create([
-                    'name' => $request->name,
-                    'price_per_unit' => $request->price_per_unit,
-                    'basic_unit' => $request->basic_unit,
-                    'tax_percentage' => $request->tax_percentage,
-                    'limited' => $request->limited,
-                    'stock' => $request->stock,
-                    'active_for_sale' => false,
-                    'manager_id' => $user->id,
-                ]);
+                $validatedData = $request->validated();
+                $validatedData['active_for_sale'] = false;
+                $validatedData['manager_id'] = $user->id;
+
+                $product = Product::create($validatedData);
+
+                return response()->json(['message' => 'Product registered successfully', 'product' => $product], 201);
             }
 
-            return response()->json(['message' => 'Product registered successfully', 'product' => $product], 201);
+            return response()->json(['error' => 'Unauthorized'], 403);
         } catch (\Exception $e) {
             Log::error('Registration Error: '.$e->getMessage());
             return response()->json(['error' => $e->getMessage()]);
@@ -75,7 +66,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        return $product;
+        return new ProductResource($product);
     }
 
     /**
