@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Http\Requests\ProductResources\StoreProductRequest;
+use App\Http\Requests\ProductResources\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -72,7 +73,7 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $product_id)
+    public function update(UpdateProductRequest $request, $product_id)
     {
         try {
             $user = Auth::user();
@@ -82,49 +83,28 @@ class ProductController extends Controller
                 return response()->json(['error'=> 'Product not found or unauthorized'],404);
             }
 
-            if ($user->role === 1 && $product->manager_id !== $user->id) {
-                return response()->json(['error' => 'Unauthorized'], 403);
-            }
-
-            $validator = Validator::make($request->all(), [
-                'name' => 'sometimes|required|string|unique:products,name,' . $product_id,
-                'price_per_unit' => 'sometimes|required|numeric',
-                'basic_unit' => 'sometimes|nullable|string',
-                'tax_percentage' => 'sometimes|nullable|numeric',
-                'limited' => 'sometimes|required|boolean',
-                'stock' => 'sometimes|nullable|numeric',
-                'active_for_sale' => 'sometimes|required|boolean',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json($validator->errors(), 422);
-            }
+            $validatedData = $request->validated();
 
             if ($user->role === 0) {
-                // Admins can only update the active_for_sale attribute
-                if ($request->has('active_for_sale')) {
-                    $product->active_for_sale = $request->input('active_for_sale');
+                // Admins can update the active_for_sale attribute
+                if (array_key_exists('active_for_sale', $validatedData)) {
+                    $product->active_for_sale = $validatedData['active_for_sale'];
                 } else {
                     return response()->json(['error' => 'Only active_for_sale attribute can be updated by admin'], 422);
                 }
-            } elseif($user->role === 1){
+            } elseif ($user->role === 1) {
                 // Managers can update other product attributes but not active_for_sale
-                $product->name = $request->input('name', $product->name);
-                $product->price_per_unit = $request->input('price_per_unit', $product->price_per_unit);
-                $product->basic_unit = $request->input('basic_unit', $product->basic_unit);
-                $product->tax_percentage = $request->input('tax_percentage', $product->tax_percentage);
-                $product->limited = $request->input('limited', $product->limited);
-                $product->stock = $request->input('stock', $product->stock);
-
-                if ($request->has('active_for_sale')) {
+                if (array_key_exists('active_for_sale', $validatedData)) {
                     return response()->json(['error' => 'Unauthorized to update active_for_sale'], 403);
                 }
-            }else{
+                $product->fill($validatedData);
+            } else {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
-
+    
             $product->save();
-
+    
+            // Removing 'active_for_sale' from response if user is not admin
             $responseData = $product->toArray();
             if ($user->role !== 0) {
                 unset($responseData['active_for_sale']);

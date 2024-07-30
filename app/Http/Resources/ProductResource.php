@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductResource extends JsonResource
@@ -14,7 +15,8 @@ class ProductResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $user = Auth::user();
+        $data = [
             'id' => $this->id,
             'name' => $this->name,
             'price_per_unit' => $this->price_per_unit,
@@ -22,8 +24,13 @@ class ProductResource extends JsonResource
             'tax_percentage' => $this->tax_percentage,
             'limited' => $this->limited,
             'stock' => $this->stock,
-            'active_for_sale' => $this->active_for_sale,
             'manager_id' => $this->manager_id,
         ];
+
+        if ($user->role === 0) {
+            $data['active_for_sale'] = $this->active_for_sale;
+        }
+
+        return $data;
     }
 }
