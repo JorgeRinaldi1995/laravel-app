@@ -43,18 +43,17 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request)
     {
         try {
+
             $user = Auth::user();
-            if($user->role === 0 || $user->role === 1){
-                $validatedData = $request->validated();
-                $validatedData['active_for_sale'] = false;
-                $validatedData['manager_id'] = $user->id;
 
-                $product = Product::create($validatedData);
+            $validatedData = $request->validated();
+            $validatedData['active_for_sale'] = false;
+            $validatedData['manager_id'] = $user->id;
 
-                return response()->json(['message' => 'Product registered successfully', 'product' => $product], 201);
-            }
+            $product = Product::create($validatedData);
 
-            return response()->json(['error' => 'Unauthorized'], 403);
+            return response()->json(['message' => 'Product registered successfully', 'product' => $product], 201);
+            
         } catch (\Exception $e) {
             Log::error('Registration Error: '.$e->getMessage());
             return response()->json(['error' => $e->getMessage()]);
